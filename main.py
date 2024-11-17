@@ -1,16 +1,36 @@
-# This is a sample Python script.
+import pytest
+from selene import browser, be, have
+from selenium import webdriver
 
-# Press ⌃R to execute it or replace it with your code.
-# Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
+driver_options = webdriver.ChromeOptions()
+driver_options.page_load_strategy = 'eager'
+browser.config.driver_options = driver_options
+
+@pytest.fixture()
+def open_window():
+    driver = webdriver.Chrome()
+    driver.set_window_size(1200, 800)
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press ⌘F8 to toggle the breakpoint.
+@pytest.fixture()
+def before_search(open_window):
+    browser.open('https://google.com')
+    browser.config.timeout = 20
+    print("Called before search test")
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+    yield
+    browser.quit()
+    print("Закрываем браузер!")
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+
+def test_search(before_search):
+    browser.element('[name="q"]').should(be.blank).type('вокруг шум пусть так не кипишуй').press_enter()
+    browser.element('[id="main"]').should(have.text('Вокруг шум'))
+    print("Результат найден")
+
+
+def test_no_search(before_search):
+    browser.element('[name="q"]').should(be.blank).type('cuQ6b:npT2md;x123456789').press_enter()
+    browser.element('[id="main"]').should(have.text('ничего не найдено'))
+    print("Результат не найден")

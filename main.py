@@ -14,7 +14,7 @@ def open_window():
 
 @pytest.fixture()
 def before_search(open_window):
-    browser.open('https://google.com')
+    browser.open('https://google.com/ncr')
     browser.config.timeout = 20
     print("Called before search test")
 
@@ -32,5 +32,5 @@ def test_search(before_search):
 
 def test_no_search(before_search):
     browser.element('[name="q"]').should(be.blank).type('cuQ6b:npT2md;x123456789').press_enter()
-    browser.element('[id="main"]').should(have.text('ничего не найдено'))
+    browser.element('[id="main"]').should(have.text('did not match any documents'))
     print("Результат не найден")
